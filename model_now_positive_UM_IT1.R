@@ -33,17 +33,21 @@ totItaly <- dataItaly$terapia_intensiva+
 ## --------------------------------------------------------
 # linear and quadratic trend 
 regressorsUmbria <- cbind(linearTrend=seq(along=totUmbria), 
-                  quadTrend = seq(along=totUmbria)^2)
+                  quadTrend = seq(along=totUmbria)^2/100)
 #
 regressorsItaly <- cbind(linearTrend=seq(along=totItaly), 
-                    quadTrend = seq(along=totItaly)^2)
+                    quadTrend = seq(along=totItaly)^2/100)
+
 # linear, quadratic and log  trend 
 regressors1Umbria <- cbind(linearTrend=seq(along=totUmbria), 
-                   quadTrend = seq(along=totUmbria)^2,
+                   quadTrend = seq(along=totUmbria)^2/100,
                    linlogTrend = log(seq(along=totUmbria)))
 #
+regressors2Umbria <- cbind(linearTrend=seq(along=totUmbria), 
+                           linlogTrend = log(seq(along=totUmbria)))
+
 regressors1Italy <- cbind(linearTrend=seq(along=totItaly), 
-                           quadTrend = seq(along=totItaly)^2,
+                           quadTrend = seq(along=totItaly)^2/100,
                            linlogTrend = log(seq(along=totItaly)))
 #
 
@@ -71,11 +75,11 @@ M3Umbria <- tsglm(ts=totUmbria,
                model=list(past_obs=1),
                xreg=regressors1Umbria, 
                distr = "poisson")
-#
+
 M4Umbria <- tsglm(ts=totUmbria, 
             link = "log",
             model=list(past_obs=1),
-            xreg=regressors1Umbria, 
+            xreg=regressors1Umbria,
             distr = "nbinom")
 #
 
@@ -105,6 +109,9 @@ M4Italy <- tsglm(ts=totItaly,
 #### MODEL COMPARISON ####
 ## --------------------------------------------------------
 A1Umbria <- summary(M1Umbria)
+cbind(A1Umbria$QIC, A2Umbria$QIC,A3Umbria$QIC,A4Umbria$QIC)
+cbind(A1Umbria$AIC, A2Umbria$AIC,A3Umbria$AIC,A4Umbria$AIC)
+
 A2Umbria <- summary(M2Umbria)
 A3Umbria <- summary(M3Umbria)
 A4Umbria <- summary(M4Umbria)
@@ -116,10 +123,10 @@ A4Italy <- summary(M4Italy)
 #### STANDARD ERROR OVERDISPERSION PARAMETER OBTAINED WITH 
 #### PARAMETRIC BOOTSTRAP####
 round(M4Umbria$sigmasq,6)
-seM4<-se(M4Umbria, B = 500)
+seM4<-se(M4Umbria, B = 200)
 seM4$se
 round(M4Italy$sigmasq,6)
-seM4IT<-se(M4Italy, B = 500)
+seM4IT<-se(M4Italy, B = 200)
 seM4IT$se
 seM4IT$ci
 #### PREDICTED VALUES 20 DAYS AHEAD ####
@@ -131,52 +138,54 @@ TT <- length(totUmbria)
 ## --------------------------------------------------------
 P1Umbria <-predict(M1Umbria, 
               newxreg = data.frame(linearTrend = ((TT+1):(TT+go)), 
-                                   quadTrend = ((TT+1):(TT+go))^2),
+                                   quadTrend = ((TT+1):(TT+go))^2/100),
               n.ahead=go)
 #
 P1Italy <-predict(M1Italy, 
                    newxreg = data.frame(linearTrend = ((TT+1):(TT+go)), 
-                                        quadTrend = ((TT+1):(TT+go))^2),
+                                        quadTrend = ((TT+1):(TT+go))^2/100),
                    n.ahead=go)
 ## --------------------------------------------------------
 P2Umbria <-predict(M2Umbria, 
              newxreg = data.frame(linearTrend = ((TT+1):(TT+go)), 
-                                  quadTrend = ((TT+1):(TT+go))^2,
+                                  quadTrend = ((TT+1):(TT+go))^2/100,
                                   linlogTrend = log((TT+1):(TT+go))),
              n.ahead=go)
 #
 P2Italy <-predict(M2Italy, 
                    newxreg = data.frame(linearTrend = ((TT+1):(TT+go)), 
-                                        quadTrend = ((TT+1):(TT+go))^2,
+                                        quadTrend = ((TT+1):(TT+go))^2/100,
                                         linlogTrend = log((TT+1):(TT+go))),
                    n.ahead=go)
-## --------------------------------------------------------
-P3Umbria <-predict(M3Umbria, 
-             newxreg = data.frame(linearTrend = ((TT+1):(TT+go)), 
-                                  quadTrend = ((TT+1):(TT+go))^2,
+# --------------------------------------------------------
+P3Umbria <-predict(M3Umbria,
+             newxreg = data.frame(linearTrend = ((TT+1):(TT+go)),
+                                  quadTrend = ((TT+1):(TT+go))^2/100,
                                   linlogTrend = log((TT+1):(TT+go))),
              n.ahead=go)
-#
+
+
 P3Italy <-predict(M3Italy, 
                    newxreg = data.frame(linearTrend = ((TT+1):(TT+go)), 
-                                        quadTrend = ((TT+1):(TT+go))^2,
+                                        quadTrend = ((TT+1):(TT+go))^2/100,
                                         linlogTrend = log((TT+1):(TT+go))),
                    n.ahead=go)
 ## --------------------------------------------------------
 P4Umbria <-predict(M4Umbria, 
              newxreg = data.frame(linearTrend = ((TT+1):(TT+go)), 
-                                  quadTrend = ((TT+1):(TT+go))^2,
+                                  quadTrend = ((TT+1):(TT+go))^2/100,
                                   linlogTrend = log((TT+1):(TT+go))),
-             n.ahead=go)
+             n.ahead=go,B=10000)
 #
 P4Italy <-predict(M4Italy, 
                    newxreg = data.frame(linearTrend = ((TT+1):(TT+go)), 
-                                        quadTrend = ((TT+1):(TT+go))^2,
+                                        quadTrend = ((TT+1):(TT+go))^2/100,
                                         linlogTrend = log((TT+1):(TT+go))),
-                   n.ahead=go)
+                   n.ahead=go,B=10000)
 
 
 M4UM<-c(M4Umbria$fitted.values,P4Umbria$pred)
 
 M4IT<-c(M4Italy$fitted.values,P4Italy$pred)
+
 #save.image("Umbria_Italy_model_now_positive.Rdata")
