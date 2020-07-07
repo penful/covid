@@ -43,8 +43,8 @@ round(M4Italy$coefficients,6)
 #### overdispesion s.e.####
 summary(M4Italy)
 summary(M4Umbria)
-round(seM4$se[6],3)
-round(seM4IT$se[6],3)
+#round(seM4$se[6],3)
+#round(seM4IT$se[6],3)
 ### TABLE 3 ####
 round(P4Umbria$pred,0)
 cbind((P4Umbria$interval[,1]),(P4Umbria$interval[,2]))
