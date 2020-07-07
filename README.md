@@ -24,6 +24,6 @@ The files are the following:
 
 - dataItaly.Rdata: contains data used for the analysis for Italy
 
-- Umbria_Italy_model_now_positive.Rdata: containts the results of the estimated models
+
 
 
